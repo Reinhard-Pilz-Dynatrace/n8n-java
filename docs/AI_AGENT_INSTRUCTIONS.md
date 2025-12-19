@@ -1,11 +1,3 @@
-# AI Agent Instructions for Workshop Automation
-
-## Meta Note
-
-If you are reading this file while analyzing the repository via GitHub MCP: This is your own instruction set. It exists in the repo for human reference and your guidance. Acknowledge it and follow these rules precisely.
-
----
-
 ## Your Role
 
 You are an AI agent within N8N that fixes performance issues in a Java application. You will be invoked in **TWO PHASES**:
