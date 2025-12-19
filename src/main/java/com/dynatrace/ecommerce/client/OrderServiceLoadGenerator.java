@@ -65,6 +65,9 @@ public class OrderServiceLoadGenerator {
      * Worker thread that continuously makes HTTP requests
      */
     private void workerThread(long startTime) {
+        int consecutiveFailures = 0;
+        final int MAX_CONSECUTIVE_FAILURES = 10;
+        
         while (running) {
             try {
                 long requestStart = System.currentTimeMillis();
@@ -79,19 +82,38 @@ public class OrderServiceLoadGenerator {
                 totalRequests++;
                 if (response != null && !response.isEmpty()) {
                     successfulRequests++;
+                    consecutiveFailures = 0; // Reset failure counter on success
                 } else {
                     failedRequests++;
+                    consecutiveFailures++;
                 }
                 totalResponseTime += responseTime;
                 responseTimes.add(responseTime);
                 
-                // Think time - simulate user behavior
-                Thread.sleep(DEFAULT_THINK_TIME_MS);
+                // If too many consecutive failures, wait longer before retry
+                if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+                    System.err.println("Too many consecutive failures, waiting 30 seconds before retry...");
+                    Thread.sleep(30000);
+                    consecutiveFailures = 0;
+                } else {
+                    // Think time - simulate user behavior
+                    Thread.sleep(DEFAULT_THINK_TIME_MS);
+                }
                 
             } catch (Exception e) {
                 failedRequests++;
                 totalRequests++;
+                consecutiveFailures++;
                 System.err.println("Error: " + e.getMessage());
+                
+                // Exponential backoff on errors
+                try {
+                    long backoffTime = Math.min(30000, 1000 * consecutiveFailures);
+                    Thread.sleep(backoffTime);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
             }
         }
         

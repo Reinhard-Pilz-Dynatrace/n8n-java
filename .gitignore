@@ -48,3 +48,5 @@ hs_err_pid*
 
 # Workshop documentation (contains bug implementation details)
 docs/WORKSHOP_GAME_PLAN.md
+
+dynakube.yaml
