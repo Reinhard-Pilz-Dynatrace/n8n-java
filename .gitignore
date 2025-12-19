@@ -45,3 +45,6 @@ hs_err_pid*
 
 # But keep the Maven Wrapper JAR downloadable via .mvn/wrapper/maven-wrapper.properties
 !.mvn/wrapper/maven-wrapper.jar
+
+# Workshop documentation (contains bug implementation details)
+docs/WORKSHOP_GAME_PLAN.md
