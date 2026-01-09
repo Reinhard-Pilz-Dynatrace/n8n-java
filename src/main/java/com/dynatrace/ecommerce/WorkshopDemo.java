@@ -1,9 +1,8 @@
 package com.dynatrace.ecommerce;
 
 import com.dynatrace.ecommerce.client.OrderServiceLoadGenerator;
+import com.dynatrace.ecommerce.client.SimpleHttpClient;
 import com.dynatrace.ecommerce.server.OrderServiceHttpServer;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 /**
  * Main entry point for the OrderService workshop demo
@@ -71,25 +70,20 @@ public class WorkshopDemo {
     
     /**
      * Wait for server to respond to health checks
+     * Uses SimpleHttpClient to bypass Dynatrace instrumentation
      * @param maxWaitSeconds maximum seconds to wait
      * @return true if server is healthy, false if timeout
      */
     private static boolean waitForServerHealth(int maxWaitSeconds) {
         int attempts = 0;
         int maxAttempts = maxWaitSeconds;
+        SimpleHttpClient httpClient = new SimpleHttpClient("localhost", 8080);
         
         while (attempts < maxAttempts) {
             try {
-                URL url = new URL("http://localhost:8080/health");
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("GET");
-                conn.setConnectTimeout(1000);
-                conn.setReadTimeout(1000);
-                
-                int responseCode = conn.getResponseCode();
-                conn.disconnect();
-                
-                if (responseCode == 200) {
+                String response = httpClient.get("/health");
+                // If we get a response without exception, server is healthy
+                if (response != null) {
                     return true;
                 }
             } catch (Exception e) {
